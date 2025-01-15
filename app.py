@@ -5,7 +5,7 @@ from wordcloud import WordCloud
 import matplotlib.pyplot as plt
 
 # Load data
-file_path = "Keluhan_dan_Saran_Pelanggan.xlsx"
+file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
 df = pd.read_excel(file_path)
 
 # Streamlit app
