@@ -1,9 +1,11 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
+from wordcloud import WordCloud
+import matplotlib.pyplot as plt
 
 # Load data
-file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
+file_path = "Keluhan_dan_Saran_Pelanggan.xlsx"
 df = pd.read_excel(file_path)
 
 # Streamlit app
@@ -23,6 +25,26 @@ def main():
                      title="Jumlah Keluhan per Cabang",
                      labels={"Cabang": "Cabang", "Jumlah Keluhan": "Jumlah Keluhan"})
     st.plotly_chart(fig_bar)
+
+    # Visualization: Word Cloud for complaints
+    st.subheader("Word Cloud Keluhan")
+    keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
+    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white').generate(keluhan_text)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud_keluhan, interpolation='bilinear')
+    ax.axis('off')
+    st.pyplot(fig)
+
+    # Visualization: Word Cloud for suggestions
+    st.subheader("Word Cloud Saran")
+    saran_text = " ".join(df["Saran"].dropna().tolist())
+    wordcloud_saran = WordCloud(width=800, height=400, background_color='white').generate(saran_text)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud_saran, interpolation='bilinear')
+    ax.axis('off')
+    st.pyplot(fig)
 
     # Visualization: Pie chart of service types
     st.subheader("Distribusi Jenis Pelayanan")
@@ -44,3 +66,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+
