@@ -166,7 +166,7 @@ def main():
     st.pyplot(fig)
 
     # Feature: Combined Chart for Keluhan and Saran
-    st.subheader("Combined Chart for Keluhan and Saran")
+    st.subheader("Combined Chart for Keluhan dan Saran")
     combined_chart_data = branch_data.melt(id_vars="Cabang", value_vars=["Keluhan", "Saran"], var_name="Jenis", value_name="Narasi")
     combined_chart_data = combined_chart_data.dropna()
     combined_chart_data["Count"] = 1
@@ -175,7 +175,7 @@ def main():
 
     combined_chart = px.bar(
         combined_summary, x="Narasi", y="Count", color="Jenis",
-        title=f"Combined View of Keluhan and Saran for Cabang: {selected_branch}",
+        title=f"Combined View of Keluhan dan Saran for Cabang: {selected_branch}",
         labels={"Narasi": "Narasi", "Count": "Jumlah"},
         color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"},
         hover_data={"Narasi": True}
@@ -190,10 +190,9 @@ def main():
     total_summary = total_summary.dropna()
     total_summary["Count"] = 1
     total_counts = total_summary.groupby("Jenis").sum().reset_index()
-    total_counts["Narasi"] = total_summary.groupby("Jenis")["Narasi"].apply(lambda x: summarize_text(" ".join(x))).values
 
     total_chart = px.bar(
-        total_counts, x="Jenis", y="Count", text="Narasi",
+        total_counts, x="Jenis", y="Count",
         title="Total Akumulasi Keluhan dan Saran",
         labels={"Jenis": "Jenis", "Count": "Jumlah"},
         color="Jenis",
@@ -204,6 +203,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
