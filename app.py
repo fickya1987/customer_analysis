@@ -6,7 +6,10 @@ import matplotlib.pyplot as plt
 import plotly.graph_objects as go
 
 # Define additional stop words
-custom_stopwords = set(["yang", "dan", "oleh", "untuk", "dalam", "dengan", "pada", "tidak", "ini", "itu", "akan", "adalah", "saya", "kami", "dari", "di", "ke"])
+custom_stopwords = set([
+    "yang", "dan", "oleh", "untuk", "dalam", "dengan", "pada", "tidak", "ini", "itu", "akan", "adalah", "saya", "kami", "dari", "di", "ke",
+    "karena", "sering", "ada", "pastikan", "selalu", "agar", "atau", "seperti", "jika", "juga"
+])
 
 # Load data
 file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
