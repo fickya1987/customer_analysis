@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from wordcloud import WordCloud
+from wordcloud import WordCloud, STOPWORDS
 import matplotlib.pyplot as plt
 
 # Load data
@@ -26,31 +26,35 @@ def main():
                      labels={"Cabang": "Cabang", "Jumlah Keluhan": "Jumlah Keluhan"})
     st.plotly_chart(fig_bar)
 
-    # Visualization: Word Cloud for complaints
-    try:
-        st.subheader("Word Cloud Keluhan")
-        keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
-        wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white').generate(keluhan_text)
+    # Visualization: Interactive bar chart for suggestions
+    st.subheader("Visualisasi Saran Berdasarkan Cabang")
+    saran_count = df["Cabang"].value_counts().reset_index()
+    saran_count.columns = ["Cabang", "Jumlah Saran"]
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.imshow(wordcloud_keluhan, interpolation='bilinear')
-        ax.axis('off')
-        st.pyplot(fig)
-    except ModuleNotFoundError:
-        st.error("Module 'wordcloud' is not installed. Please install it using 'pip install wordcloud'.")
+    fig_saran = px.bar(saran_count, x="Cabang", y="Jumlah Saran", color="Jumlah Saran",
+                       title="Jumlah Saran per Cabang",
+                       labels={"Cabang": "Cabang", "Jumlah Saran": "Jumlah Saran"})
+    st.plotly_chart(fig_saran)
+
+    # Visualization: Word Cloud for complaints
+    st.subheader("Word Cloud Keluhan")
+    keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
+    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white', stopwords=STOPWORDS).generate(keluhan_text)
+
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud_keluhan, interpolation='bilinear')
+    ax.axis('off')
+    st.pyplot(fig)
 
     # Visualization: Word Cloud for suggestions
-    try:
-        st.subheader("Word Cloud Saran")
-        saran_text = " ".join(df["Saran"].dropna().tolist())
-        wordcloud_saran = WordCloud(width=800, height=400, background_color='white').generate(saran_text)
+    st.subheader("Word Cloud Saran")
+    saran_text = " ".join(df["Saran"].dropna().tolist())
+    wordcloud_saran = WordCloud(width=800, height=400, background_color='white', stopwords=STOPWORDS).generate(saran_text)
 
-        fig, ax = plt.subplots(figsize=(10, 5))
-        ax.imshow(wordcloud_saran, interpolation='bilinear')
-        ax.axis('off')
-        st.pyplot(fig)
-    except ModuleNotFoundError:
-        st.error("Module 'wordcloud' is not installed. Please install it using 'pip install wordcloud'.")
+    fig, ax = plt.subplots(figsize=(10, 5))
+    ax.imshow(wordcloud_saran, interpolation='bilinear')
+    ax.axis('off')
+    st.pyplot(fig)
 
     # Visualization: Pie chart of service types
     st.subheader("Distribusi Jenis Pelayanan")
@@ -72,5 +76,6 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
