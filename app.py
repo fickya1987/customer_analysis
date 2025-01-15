@@ -23,9 +23,11 @@ def main():
     st.subheader("Data Keluhan dan Saran")
     st.dataframe(df)
 
-    # Visualization: Area chart for complaints and suggestions by branch
+    # Visualization: Multiple chart types for complaints and suggestions by branch
     st.subheader("Interactive Chart: Keluhan dan Saran Berdasarkan Cabang")
-    chart_type = st.radio("Pilih Jenis Chart", ("Bar Chart", "Area Chart"))
+    chart_type = st.selectbox("Pilih Jenis Chart", (
+        "Bar Chart", "Area Chart", "Pie Chart", "Scatter Plot", "Line Chart", "Bubble Chart", "Treemap", "Sunburst", "Funnel Chart", "Radar Chart"
+    ))
     selected_branch = st.selectbox("Pilih Cabang", options=df["Cabang"].unique())
 
     # Filter data for the selected branch
@@ -37,27 +39,89 @@ def main():
         st.write(f"**Jumlah Keluhan**: {complaints_count}")
         st.write(f"**Jumlah Saran**: {suggestions_count}")
 
+        data_chart = pd.DataFrame({
+            "Jenis": ["Keluhan", "Saran"],
+            "Jumlah": [complaints_count, suggestions_count]
+        })
+
         if chart_type == "Bar Chart":
-            fig_bar = px.bar(
-                x=["Keluhan", "Saran"],
-                y=[complaints_count, suggestions_count],
-                labels={"x": "Jenis", "y": "Jumlah"},
-                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}"
+            fig = px.bar(
+                data_chart, x="Jenis", y="Jumlah", color="Jenis",
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
+                labels={"Jenis": "Jenis", "Jumlah": "Jumlah"},
+                color_discrete_sequence=px.colors.sequential.Viridis
             )
-            st.plotly_chart(fig_bar)
 
         elif chart_type == "Area Chart":
-            data_area = pd.DataFrame({
-                "Jenis": ["Keluhan", "Saran"],
-                "Jumlah": [complaints_count, suggestions_count]
-            })
-            fig_area = px.area(
-                data_area,
-                x="Jenis",
-                y="Jumlah",
-                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}"
+            fig = px.area(
+                data_chart, x="Jenis", y="Jumlah",
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
+                color_discrete_sequence=px.colors.sequential.Plasma
             )
-            st.plotly_chart(fig_area)
+
+        elif chart_type == "Pie Chart":
+            fig = px.pie(
+                data_chart, values="Jumlah", names="Jenis",
+                title=f"Distribusi Keluhan dan Saran untuk Cabang: {selected_branch}",
+                color_discrete_sequence=px.colors.sequential.RdBu
+            )
+
+        elif chart_type == "Scatter Plot":
+            fig = px.scatter(
+                data_chart, x="Jenis", y="Jumlah", size="Jumlah", color="Jenis",
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
+                color_discrete_sequence=px.colors.qualitative.Bold
+            )
+
+        elif chart_type == "Line Chart":
+            fig = px.line(
+                data_chart, x="Jenis", y="Jumlah", markers=True,
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
+                color_discrete_sequence=["#636EFA"]
+            )
+
+        elif chart_type == "Bubble Chart":
+            fig = px.scatter(
+                data_chart, x="Jenis", y="Jumlah", size="Jumlah", color="Jenis",
+                title=f"Bubble Chart Keluhan dan Saran: {selected_branch}",
+                color_discrete_sequence=px.colors.qualitative.Set1
+            )
+
+        elif chart_type == "Treemap":
+            fig = px.treemap(
+                data_chart, path=["Jenis"], values="Jumlah",
+                title=f"Treemap Keluhan dan Saran untuk Cabang: {selected_branch}",
+                color="Jumlah", color_continuous_scale="Blues"
+            )
+
+        elif chart_type == "Sunburst":
+            fig = px.sunburst(
+                data_chart, path=["Jenis"], values="Jumlah",
+                title=f"Sunburst Chart Keluhan dan Saran: {selected_branch}",
+                color="Jumlah", color_continuous_scale="Magma"
+            )
+
+        elif chart_type == "Funnel Chart":
+            fig = px.funnel(
+                data_chart, x="Jenis", y="Jumlah",
+                title=f"Funnel Chart Keluhan dan Saran: {selected_branch}"
+            )
+
+        elif chart_type == "Radar Chart":
+            fig = go.Figure()
+            fig.add_trace(go.Scatterpolar(
+                r=data_chart["Jumlah"],
+                theta=data_chart["Jenis"],
+                fill="toself",
+                name="Keluhan dan Saran"
+            ))
+            fig.update_layout(
+                polar=dict(radialaxis=dict(visible=True)),
+                title=f"Radar Chart Keluhan dan Saran: {selected_branch}",
+                showlegend=True
+            )
+
+        st.plotly_chart(fig)
 
         # Display detailed narratives
         st.write("### Narasi Keluhan")
@@ -92,6 +156,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
