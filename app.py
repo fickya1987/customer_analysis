@@ -61,11 +61,11 @@ def main():
 
         # Display detailed narratives
         st.write("### Narasi Keluhan")
-        for i, row in branch_data["Keluhan"].dropna().iteritems():
+        for row in branch_data["Keluhan"].dropna().to_list():
             st.write(f"- {row}")
 
         st.write("### Narasi Saran")
-        for i, row in branch_data["Saran"].dropna().iteritems():
+        for row in branch_data["Saran"].dropna().to_list():
             st.write(f"- {row}")
 
     else:
@@ -92,6 +92,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
