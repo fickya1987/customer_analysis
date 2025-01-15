@@ -160,8 +160,27 @@ def main():
     ax.axis('off')
     st.pyplot(fig)
 
+    # Feature: Combined Chart for Keluhan and Saran
+    st.subheader("Combined Chart for Keluhan and Saran")
+    combined_chart_data = branch_data.melt(id_vars="Cabang", value_vars=["Keluhan", "Saran"], var_name="Jenis", value_name="Narasi")
+    combined_chart_data = combined_chart_data.dropna()
+    combined_chart_data["Count"] = 1
+    combined_summary = combined_chart_data.groupby(["Jenis", "Narasi"]).sum().reset_index()
+
+    combined_chart = px.bar(
+        combined_summary, x="Narasi", y="Count", color="Jenis",
+        title=f"Combined View of Keluhan and Saran for Cabang: {selected_branch}",
+        labels={"Narasi": "Narasi", "Count": "Jumlah"},
+        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"},
+        hover_data={"Narasi": True}
+    )
+    combined_chart.update_xaxes(tickangle=45, title_text="Narasi", title_font=dict(size=12))
+    combined_chart.update_yaxes(title_text="Jumlah", title_font=dict(size=12))
+    st.plotly_chart(combined_chart)
+
 if __name__ == "__main__":
     main()
+
 
 
 
