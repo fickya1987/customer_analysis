@@ -15,6 +15,11 @@ custom_stopwords = set([
 file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
 df = pd.read_excel(file_path)
 
+# Helper function to summarize narratives
+def summarize_text(text, word_limit=10):
+    words = text.split()
+    return " ".join(words[:word_limit]) + ("..." if len(words) > word_limit else "")
+
 # Streamlit app
 def main():
     st.title("Keluhan dan Saran Pelanggan")
@@ -43,8 +48,8 @@ def main():
             "Jenis": ["Keluhan", "Saran"],
             "Jumlah": [complaints_count, suggestions_count],
             "Narasi": [
-                "\n".join(branch_data["Keluhan"].dropna().to_list()),
-                "\n".join(branch_data["Saran"].dropna().to_list())
+                summarize_text(" ".join(branch_data["Keluhan"].dropna().to_list())),
+                summarize_text(" ".join(branch_data["Saran"].dropna().to_list()))
             ]
         })
 
@@ -166,6 +171,7 @@ def main():
     combined_chart_data = combined_chart_data.dropna()
     combined_chart_data["Count"] = 1
     combined_summary = combined_chart_data.groupby(["Jenis", "Narasi"]).sum().reset_index()
+    combined_summary["Narasi"] = combined_summary["Narasi"].apply(lambda x: summarize_text(x))
 
     combined_chart = px.bar(
         combined_summary, x="Narasi", y="Count", color="Jenis",
@@ -184,13 +190,16 @@ def main():
     total_summary = total_summary.dropna()
     total_summary["Count"] = 1
     total_counts = total_summary.groupby("Jenis").sum().reset_index()
+    total_counts["Narasi"] = total_summary.groupby("Jenis")["Narasi"].apply(lambda x: summarize_text(" ".join(x))).values
 
-    total_chart = px.pie(
-        total_counts, values="Count", names="Jenis",
+    total_chart = px.bar(
+        total_counts, x="Jenis", y="Count", text="Narasi",
         title="Total Akumulasi Keluhan dan Saran",
+        labels={"Jenis": "Jenis", "Count": "Jumlah"},
         color="Jenis",
-        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"},
+        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"}
     )
+    total_chart.update_traces(textposition="outside")
     st.plotly_chart(total_chart)
 
 if __name__ == "__main__":
