@@ -178,8 +178,24 @@ def main():
     combined_chart.update_yaxes(title_text="Jumlah", title_font=dict(size=12))
     st.plotly_chart(combined_chart)
 
+    # Feature: Total Accumulated Complaints and Suggestions
+    st.subheader("Total Keluhan dan Saran")
+    total_summary = df.melt(id_vars="Cabang", value_vars=["Keluhan", "Saran"], var_name="Jenis", value_name="Narasi")
+    total_summary = total_summary.dropna()
+    total_summary["Count"] = 1
+    total_counts = total_summary.groupby("Jenis").sum().reset_index()
+
+    total_chart = px.pie(
+        total_counts, values="Count", names="Jenis",
+        title="Total Akumulasi Keluhan dan Saran",
+        color="Jenis",
+        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"},
+    )
+    st.plotly_chart(total_chart)
+
 if __name__ == "__main__":
     main()
+
 
 
 
