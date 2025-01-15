@@ -1,8 +1,12 @@
 import streamlit as st
 import pandas as pd
 import plotly.express as px
-from wordcloud import WordCloud, STOPWORDS
+from wordcloud import WordCloud
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
+
+# Define additional stop words
+custom_stopwords = set(["yang", "dan", "oleh", "untuk", "dalam", "dengan", "pada", "tidak", "ini", "itu", "akan", "adalah", "saya", "kami", "dari", "di", "ke"])
 
 # Load data
 file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
@@ -16,30 +20,41 @@ def main():
     st.subheader("Data Keluhan dan Saran")
     st.dataframe(df)
 
-    # Visualization: Bar chart of complaints by branch
-    st.subheader("Visualisasi Keluhan Berdasarkan Cabang")
-    keluhan_count = df["Cabang"].value_counts().reset_index()
-    keluhan_count.columns = ["Cabang", "Jumlah Keluhan"]
+    # Visualization: Area chart for complaints and suggestions by branch
+    st.subheader("Area Chart: Keluhan dan Saran Berdasarkan Cabang")
+    area_data = df.groupby("Cabang").size().reset_index(name="Jumlah")
+    fig_area = px.area(area_data, x="Cabang", y="Jumlah", title="Keluhan dan Saran Berdasarkan Cabang",
+                       labels={"Cabang": "Cabang", "Jumlah": "Jumlah"})
+    st.plotly_chart(fig_area)
 
-    fig_bar = px.bar(keluhan_count, x="Cabang", y="Jumlah Keluhan", color="Jumlah Keluhan",
-                     title="Jumlah Keluhan per Cabang",
-                     labels={"Cabang": "Cabang", "Jumlah Keluhan": "Jumlah Keluhan"})
-    st.plotly_chart(fig_bar)
+    # Visualization: Spider chart (Radar chart) for Keluhan and Saran comparison
+    st.subheader("Radar Chart: Perbandingan Keluhan dan Saran")
+    branches = df["Cabang"].unique()
+    radar_data = []
+    for branch in branches:
+        complaints = df[df["Cabang"] == branch]["Keluhan"].count()
+        suggestions = df[df["Cabang"] == branch]["Saran"].count()
+        radar_data.append({"Cabang": branch, "Keluhan": complaints, "Saran": suggestions})
+    radar_df = pd.DataFrame(radar_data)
 
-    # Visualization: Interactive bar chart for suggestions
-    st.subheader("Visualisasi Saran Berdasarkan Cabang")
-    saran_count = df["Cabang"].value_counts().reset_index()
-    saran_count.columns = ["Cabang", "Jumlah Saran"]
+    categories = list(radar_df["Cabang"])
+    complaints = radar_df["Keluhan"].tolist()
+    suggestions = radar_df["Saran"].tolist()
 
-    fig_saran = px.bar(saran_count, x="Cabang", y="Jumlah Saran", color="Jumlah Saran",
-                       title="Jumlah Saran per Cabang",
-                       labels={"Cabang": "Cabang", "Jumlah Saran": "Jumlah Saran"})
-    st.plotly_chart(fig_saran)
+    fig_radar = go.Figure()
+    fig_radar.add_trace(go.Scatterpolar(r=complaints, theta=categories, fill='toself', name='Keluhan'))
+    fig_radar.add_trace(go.Scatterpolar(r=suggestions, theta=categories, fill='toself', name='Saran'))
+
+    fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True)),
+                            title="Radar Chart: Keluhan dan Saran",
+                            showlegend=True)
+    st.plotly_chart(fig_radar)
 
     # Visualization: Word Cloud for complaints
     st.subheader("Word Cloud Keluhan")
     keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
-    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white', stopwords=STOPWORDS).generate(keluhan_text)
+    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white',
+                                  stopwords=custom_stopwords).generate(keluhan_text)
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.imshow(wordcloud_keluhan, interpolation='bilinear')
@@ -49,7 +64,8 @@ def main():
     # Visualization: Word Cloud for suggestions
     st.subheader("Word Cloud Saran")
     saran_text = " ".join(df["Saran"].dropna().tolist())
-    wordcloud_saran = WordCloud(width=800, height=400, background_color='white', stopwords=STOPWORDS).generate(saran_text)
+    wordcloud_saran = WordCloud(width=800, height=400, background_color='white',
+                                stopwords=custom_stopwords).generate(saran_text)
 
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.imshow(wordcloud_saran, interpolation='bilinear')
@@ -76,6 +92,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
