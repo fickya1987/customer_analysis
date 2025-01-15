@@ -27,24 +27,30 @@ def main():
     st.plotly_chart(fig_bar)
 
     # Visualization: Word Cloud for complaints
-    st.subheader("Word Cloud Keluhan")
-    keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
-    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white').generate(keluhan_text)
+    try:
+        st.subheader("Word Cloud Keluhan")
+        keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
+        wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white').generate(keluhan_text)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.imshow(wordcloud_keluhan, interpolation='bilinear')
-    ax.axis('off')
-    st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.imshow(wordcloud_keluhan, interpolation='bilinear')
+        ax.axis('off')
+        st.pyplot(fig)
+    except ModuleNotFoundError:
+        st.error("Module 'wordcloud' is not installed. Please install it using 'pip install wordcloud'.")
 
     # Visualization: Word Cloud for suggestions
-    st.subheader("Word Cloud Saran")
-    saran_text = " ".join(df["Saran"].dropna().tolist())
-    wordcloud_saran = WordCloud(width=800, height=400, background_color='white').generate(saran_text)
+    try:
+        st.subheader("Word Cloud Saran")
+        saran_text = " ".join(df["Saran"].dropna().tolist())
+        wordcloud_saran = WordCloud(width=800, height=400, background_color='white').generate(saran_text)
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.imshow(wordcloud_saran, interpolation='bilinear')
-    ax.axis('off')
-    st.pyplot(fig)
+        fig, ax = plt.subplots(figsize=(10, 5))
+        ax.imshow(wordcloud_saran, interpolation='bilinear')
+        ax.axis('off')
+        st.pyplot(fig)
+    except ModuleNotFoundError:
+        st.error("Module 'wordcloud' is not installed. Please install it using 'pip install wordcloud'.")
 
     # Visualization: Pie chart of service types
     st.subheader("Distribusi Jenis Pelayanan")
@@ -66,4 +72,5 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
