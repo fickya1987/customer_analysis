@@ -12,7 +12,7 @@ custom_stopwords = set([
 ])
 
 # Load data
-file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
+file_path = "Keluhan_dan_Saran_Pelanggan.xlsx"
 df = pd.read_excel(file_path)
 
 # Streamlit app
@@ -24,77 +24,75 @@ def main():
     st.dataframe(df)
 
     # Visualization: Area chart for complaints and suggestions by branch
-    st.subheader("Area Chart: Keluhan dan Saran Berdasarkan Cabang")
-    area_data = df.groupby("Cabang").size().reset_index(name="Jumlah")
-    fig_area = px.area(area_data, x="Cabang", y="Jumlah", title="Keluhan dan Saran Berdasarkan Cabang",
-                       labels={"Cabang": "Cabang", "Jumlah": "Jumlah"})
-    st.plotly_chart(fig_area)
+    st.subheader("Interactive Chart: Keluhan dan Saran Berdasarkan Cabang")
+    chart_type = st.radio("Pilih Jenis Chart", ("Bar Chart", "Area Chart"))
+    selected_branch = st.selectbox("Pilih Cabang", options=df["Cabang"].unique())
 
-    # Visualization: Spider chart (Radar chart) for Keluhan and Saran comparison
-    st.subheader("Radar Chart: Perbandingan Keluhan dan Saran")
-    branches = df["Cabang"].unique()
-    radar_data = []
-    for branch in branches:
-        complaints = df[df["Cabang"] == branch]["Keluhan"].count()
-        suggestions = df[df["Cabang"] == branch]["Saran"].count()
-        radar_data.append({"Cabang": branch, "Keluhan": complaints, "Saran": suggestions})
-    radar_df = pd.DataFrame(radar_data)
+    # Filter data for the selected branch
+    branch_data = df[df["Cabang"] == selected_branch]
+    if not branch_data.empty:
+        complaints_count = branch_data["Keluhan"].count()
+        suggestions_count = branch_data["Saran"].count()
 
-    categories = list(radar_df["Cabang"])
-    complaints = radar_df["Keluhan"].tolist()
-    suggestions = radar_df["Saran"].tolist()
+        st.write(f"**Jumlah Keluhan**: {complaints_count}")
+        st.write(f"**Jumlah Saran**: {suggestions_count}")
 
-    fig_radar = go.Figure()
-    fig_radar.add_trace(go.Scatterpolar(r=complaints, theta=categories, fill='toself', name='Keluhan'))
-    fig_radar.add_trace(go.Scatterpolar(r=suggestions, theta=categories, fill='toself', name='Saran'))
+        if chart_type == "Bar Chart":
+            fig_bar = px.bar(
+                x=["Keluhan", "Saran"],
+                y=[complaints_count, suggestions_count],
+                labels={"x": "Jenis", "y": "Jumlah"},
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}"
+            )
+            st.plotly_chart(fig_bar)
 
-    fig_radar.update_layout(polar=dict(radialaxis=dict(visible=True)),
-                            title="Radar Chart: Keluhan dan Saran",
-                            showlegend=True)
-    st.plotly_chart(fig_radar)
+        elif chart_type == "Area Chart":
+            data_area = pd.DataFrame({
+                "Jenis": ["Keluhan", "Saran"],
+                "Jumlah": [complaints_count, suggestions_count]
+            })
+            fig_area = px.area(
+                data_area,
+                x="Jenis",
+                y="Jumlah",
+                title=f"Keluhan dan Saran untuk Cabang: {selected_branch}"
+            )
+            st.plotly_chart(fig_area)
 
-    # Visualization: Word Cloud for complaints
+        # Display detailed narratives
+        st.write("### Narasi Keluhan")
+        for i, row in branch_data["Keluhan"].dropna().iteritems():
+            st.write(f"- {row}")
+
+        st.write("### Narasi Saran")
+        for i, row in branch_data["Saran"].dropna().iteritems():
+            st.write(f"- {row}")
+
+    else:
+        st.write("Tidak ada data untuk cabang yang dipilih.")
+
+    # Word Cloud Visualizations
     st.subheader("Word Cloud Keluhan")
-    keluhan_text = " ".join(df["Keluhan"].dropna().tolist())
+    keluhan_text = " ".join(branch_data["Keluhan"].dropna().tolist())
     wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white',
                                   stopwords=custom_stopwords).generate(keluhan_text)
-
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.imshow(wordcloud_keluhan, interpolation='bilinear')
     ax.axis('off')
     st.pyplot(fig)
 
-    # Visualization: Word Cloud for suggestions
     st.subheader("Word Cloud Saran")
-    saran_text = " ".join(df["Saran"].dropna().tolist())
+    saran_text = " ".join(branch_data["Saran"].dropna().tolist())
     wordcloud_saran = WordCloud(width=800, height=400, background_color='white',
                                 stopwords=custom_stopwords).generate(saran_text)
-
     fig, ax = plt.subplots(figsize=(10, 5))
     ax.imshow(wordcloud_saran, interpolation='bilinear')
     ax.axis('off')
     st.pyplot(fig)
 
-    # Visualization: Pie chart of service types
-    st.subheader("Distribusi Jenis Pelayanan")
-    pelayanan_count = df["Jenis Pelayanan"].value_counts().reset_index()
-    pelayanan_count.columns = ["Jenis Pelayanan", "Jumlah"]
-
-    fig_pie = px.pie(pelayanan_count, values="Jumlah", names="Jenis Pelayanan",
-                     title="Distribusi Jenis Pelayanan",
-                     color_discrete_sequence=px.colors.sequential.RdBu)
-    st.plotly_chart(fig_pie)
-
-    # Filter by branch
-    st.subheader("Filter Keluhan dan Saran Berdasarkan Cabang")
-    selected_cabang = st.selectbox("Pilih Cabang", options=df["Cabang"].unique())
-    filtered_data = df[df["Cabang"] == selected_cabang]
-
-    st.write(f"Menampilkan data untuk cabang: {selected_cabang}")
-    st.dataframe(filtered_data)
-
 if __name__ == "__main__":
     main()
+
 
 
 
