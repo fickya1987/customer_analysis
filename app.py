@@ -12,7 +12,7 @@ custom_stopwords = set([
 ])
 
 # Load data
-file_path = "Keluhan_dan_Saran_Pelanggan_stakeholder_pelindo.xlsx"
+file_path = "Keluhan_dan_Saran_Pelanggan.xlsx"
 df = pd.read_excel(file_path)
 
 # Streamlit app
@@ -41,12 +41,17 @@ def main():
 
         data_chart = pd.DataFrame({
             "Jenis": ["Keluhan", "Saran"],
-            "Jumlah": [complaints_count, suggestions_count]
+            "Jumlah": [complaints_count, suggestions_count],
+            "Narasi": [
+                "\n".join(branch_data["Keluhan"].dropna().to_list()),
+                "\n".join(branch_data["Saran"].dropna().to_list())
+            ]
         })
 
         if chart_type == "Bar Chart":
             fig = px.bar(
                 data_chart, x="Jenis", y="Jumlah", color="Jenis",
+                hover_data={"Narasi": True},
                 title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
                 labels={"Jenis": "Jenis", "Jumlah": "Jumlah"},
                 color_discrete_sequence=px.colors.sequential.Viridis
@@ -55,6 +60,7 @@ def main():
         elif chart_type == "Area Chart":
             fig = px.area(
                 data_chart, x="Jenis", y="Jumlah",
+                hover_data={"Narasi": True},
                 title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
                 color_discrete_sequence=px.colors.sequential.Plasma
             )
@@ -62,6 +68,7 @@ def main():
         elif chart_type == "Pie Chart":
             fig = px.pie(
                 data_chart, values="Jumlah", names="Jenis",
+                hover_data={"Narasi": True},
                 title=f"Distribusi Keluhan dan Saran untuk Cabang: {selected_branch}",
                 color_discrete_sequence=px.colors.sequential.RdBu
             )
@@ -69,6 +76,7 @@ def main():
         elif chart_type == "Scatter Plot":
             fig = px.scatter(
                 data_chart, x="Jenis", y="Jumlah", size="Jumlah", color="Jenis",
+                hover_data={"Narasi": True},
                 title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
                 color_discrete_sequence=px.colors.qualitative.Bold
             )
@@ -76,6 +84,7 @@ def main():
         elif chart_type == "Line Chart":
             fig = px.line(
                 data_chart, x="Jenis", y="Jumlah", markers=True,
+                hover_data={"Narasi": True},
                 title=f"Keluhan dan Saran untuk Cabang: {selected_branch}",
                 color_discrete_sequence=["#636EFA"]
             )
@@ -83,6 +92,7 @@ def main():
         elif chart_type == "Bubble Chart":
             fig = px.scatter(
                 data_chart, x="Jenis", y="Jumlah", size="Jumlah", color="Jenis",
+                hover_data={"Narasi": True},
                 title=f"Bubble Chart Keluhan dan Saran: {selected_branch}",
                 color_discrete_sequence=px.colors.qualitative.Set1
             )
@@ -90,6 +100,7 @@ def main():
         elif chart_type == "Treemap":
             fig = px.treemap(
                 data_chart, path=["Jenis"], values="Jumlah",
+                hover_data={"Narasi": True},
                 title=f"Treemap Keluhan dan Saran untuk Cabang: {selected_branch}",
                 color="Jumlah", color_continuous_scale="Blues"
             )
@@ -97,6 +108,7 @@ def main():
         elif chart_type == "Sunburst":
             fig = px.sunburst(
                 data_chart, path=["Jenis"], values="Jumlah",
+                hover_data={"Narasi": True},
                 title=f"Sunburst Chart Keluhan dan Saran: {selected_branch}",
                 color="Jumlah", color_continuous_scale="Magma"
             )
@@ -104,6 +116,7 @@ def main():
         elif chart_type == "Funnel Chart":
             fig = px.funnel(
                 data_chart, x="Jenis", y="Jumlah",
+                hover_data={"Narasi": True},
                 title=f"Funnel Chart Keluhan dan Saran: {selected_branch}"
             )
 
@@ -112,6 +125,8 @@ def main():
             fig.add_trace(go.Scatterpolar(
                 r=data_chart["Jumlah"],
                 theta=data_chart["Jenis"],
+                text=data_chart["Narasi"],
+                hoverinfo="text+r+theta",
                 fill="toself",
                 name="Keluhan dan Saran"
             ))
@@ -122,15 +137,6 @@ def main():
             )
 
         st.plotly_chart(fig)
-
-        # Display detailed narratives
-        st.write("### Narasi Keluhan")
-        for row in branch_data["Keluhan"].dropna().to_list():
-            st.write(f"- {row}")
-
-        st.write("### Narasi Saran")
-        for row in branch_data["Saran"].dropna().to_list():
-            st.write(f"- {row}")
 
     else:
         st.write("Tidak ada data untuk cabang yang dipilih.")
@@ -156,6 +162,7 @@ def main():
 
 if __name__ == "__main__":
     main()
+
 
 
 
