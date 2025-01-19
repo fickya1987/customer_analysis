@@ -156,7 +156,7 @@ def main():
 
     # Feature: Combined Chart for Keluhan and Saran
     st.subheader("Combined Chart for Keluhan dan Saran")
-    combined_chart_data = branch_data.melt(id_vars="Cabang", value_vars=["Keluhan", "Saran"], var_name="Jenis", value_name="Narasi")
+    combined_chart_data = branch_data.melt(id_vars="Cabang", value_vars=["Saran"], var_name="Jenis", value_name="Narasi")
     combined_chart_data = combined_chart_data.dropna()
     combined_chart_data["Count"] = 1
     combined_summary = combined_chart_data.groupby(["Jenis", "Narasi"]).sum().reset_index()
@@ -166,7 +166,7 @@ def main():
         combined_summary, x="Narasi", y="Count", color="Jenis",
         title=f"Combined View of Keluhan dan Saran for Cabang: {selected_branch}",
         labels={"Narasi": "Narasi", "Count": "Jumlah"},
-        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"},
+        color_discrete_map={"Saran": "#33FF57"},
         hover_data={"Narasi": True}
     )
     combined_chart.update_xaxes(tickangle=45, title_text="Narasi", title_font=dict(size=12))
@@ -175,7 +175,7 @@ def main():
 
     # Feature: Total Accumulated Complaints and Suggestions
     st.subheader("Total Keluhan dan Saran")
-    total_summary = df.melt(id_vars="Cabang", value_vars=["Keluhan", "Saran"], var_name="Jenis", value_name="Narasi")
+    total_summary = df.melt(id_vars="Cabang", value_vars=["Saran"], var_name="Jenis", value_name="Narasi")
     total_summary = total_summary.dropna()
     total_summary["Count"] = 1
     total_counts = total_summary.groupby("Jenis").sum().reset_index()
