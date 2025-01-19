@@ -38,7 +38,6 @@ def main():
     # Filter data for the selected branch
     branch_data = df[df["Cabang"] == selected_branch]
     if not branch_data.empty:
-        complaints_count = branch_data["Keluhan"].count()
         suggestions_count = branch_data["Saran"].count()
 
         st.write(f"**Jumlah Keluhan**: {complaints_count}")
@@ -147,14 +146,6 @@ def main():
         st.write("Tidak ada data untuk cabang yang dipilih.")
 
     # Word Cloud Visualizations
-    st.subheader("Word Cloud Keluhan")
-    keluhan_text = " ".join(branch_data["Keluhan"].dropna().tolist())
-    wordcloud_keluhan = WordCloud(width=800, height=400, background_color='white',
-                                  stopwords=custom_stopwords).generate(keluhan_text)
-    fig, ax = plt.subplots(figsize=(10, 5))
-    ax.imshow(wordcloud_keluhan, interpolation='bilinear')
-    ax.axis('off')
-    st.pyplot(fig)
 
     st.subheader("Word Cloud Saran")
     saran_text = " ".join(branch_data["Saran"].dropna().tolist())
@@ -196,7 +187,7 @@ def main():
         title="Total Akumulasi Keluhan dan Saran",
         labels={"Jenis": "Jenis", "Count": "Jumlah"},
         color="Jenis",
-        color_discrete_map={"Keluhan": "#FF5733", "Saran": "#33FF57"}
+        color_discrete_map={"Saran": "#33FF57"}
     )
     total_chart.update_traces(textposition="outside")
     st.plotly_chart(total_chart)
