@@ -40,7 +40,6 @@ def main():
     if not branch_data.empty:
         suggestions_count = branch_data["Saran"].count()
 
-        st.write(f"**Jumlah Keluhan**: {complaints_count}")
         st.write(f"**Jumlah Saran**: {suggestions_count}")
 
         data_chart = pd.DataFrame({
