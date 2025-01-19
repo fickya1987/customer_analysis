@@ -43,10 +43,9 @@ def main():
         st.write(f"**Jumlah Saran**: {suggestions_count}")
 
         data_chart = pd.DataFrame({
-            "Jenis": ["Keluhan", "Saran"],
-            "Jumlah": [complaints_count, suggestions_count],
+            "Jenis": ["Saran"],
+            "Jumlah": [suggestions_count],
             "Narasi": [
-                summarize_text(" ".join(branch_data["Keluhan"].dropna().to_list())),
                 summarize_text(" ".join(branch_data["Saran"].dropna().to_list()))
             ]
         })
